@@ -54,6 +54,10 @@ private class Backend(private var platform: Platform, private var canvas: Canvas
 }
 
 class App : Application(), Platform {
+    companion object {
+        val ROMS: List<String> = listOf("invaders", "maze", "tetris", "airplane", "tank", "test")
+    }
+
     private val canvas = Canvas(640.0, 320.0)
     private val backend = Backend(this, canvas)
     private val keys: Array<Boolean> = Array(16) { false }
@@ -62,8 +66,8 @@ class App : Application(), Platform {
 
     override fun start(primaryStage: Stage) {
         val choice = ChoiceBox<String>()
-        choice.items.addAll(listOf("invaders", "maze", "test"))
-        choice.value = "invaders"
+        choice.items.addAll(ROMS)
+        choice.value = ROMS[0]
         choice.setOnAction { play(choice.value) }
         val vbox = VBox(choice, canvas)
         val scene = Scene(vbox)
