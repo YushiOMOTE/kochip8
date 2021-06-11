@@ -128,12 +128,11 @@ class Chip8(private var platform: Platform) {
 
     private fun timer() {
         val now = platform.time()
-        if (now - time < 16) {
+        if (now - time < 32) {
             return
         }
         time = now
         if (dt > 0u) {
-            println("tick")
             dt--
         }
         if (st > 0u) {
@@ -251,13 +250,16 @@ class Chip8(private var platform: Platform) {
             0xd000 -> {
                 val n = op and 0xf
                 val base = i.toInt()
-                (0 until n).map {
-                    val b = mem[base + it].toInt()
-                    val collision = (0 until 8).any { x ->
+
+                vf = 0u
+                (0 until n).forEach { y ->
+                    val b = mem[base + y].toInt()
+                    (0 until 8).forEach { x ->
                         val pixel = b and (1 shl (7 - x)) != 0
-                        display.set(vx.toInt() + x, vy.toInt() + it, pixel)
+                        if (display.set(vx.toInt() + x, vy.toInt() + y, pixel)) {
+                            vf = 1u
+                        }
                     }
-                    vf = if (collision) 1u else 0u
                 }
             }
             0xe000 -> when (op and 0xff) {

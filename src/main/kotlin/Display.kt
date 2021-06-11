@@ -17,12 +17,12 @@ class Display {
     }
 
     fun set(x: Int, y: Int, value: Boolean): Boolean {
-        val p = pixels[(x % width) + (y % width) * width]
+        val p = pixels[(x % width) + (y % height) * width]
         val old = p.pixel.value
-        val new = p.pixel.value xor value
+        val new = old xor value
         p.pixel.value = new
         p.updated = old != new
-        return (old and !new)
+        return old and !new
     }
 
     fun updates(): List<Pixel> = pixels.filter { it.updated }.map {
