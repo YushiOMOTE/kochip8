@@ -6,16 +6,17 @@ import javafx.scene.canvas.Canvas
 import javafx.scene.control.ChoiceBox
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
+import java.lang.Exception
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
 
-class Backend(private var platform: Platform, private var canvas: Canvas) {
+private class Backend(private var platform: Platform, private var canvas: Canvas) {
     private var backend: Thread? = null
 
-    fun start(name: String) {
-        val rom = javaClass.getResource("roms/${name}.ch8").readBytes()
+    private fun start(name: String) {
+        val rom = javaClass.getResource("roms/${name}.ch8")?.readBytes() ?: throw Exception("No game resource $name")
 
         backend = thread {
             val chip8 = Chip8(platform)
@@ -37,7 +38,7 @@ class Backend(private var platform: Platform, private var canvas: Canvas) {
         backend?.join()
     }
 
-    fun display(chip8: Chip8) {
+    private fun display(chip8: Chip8) {
         val updates = chip8.display.updates()
         if (updates.isEmpty()) {
             return
@@ -79,7 +80,7 @@ class App : Application(), Platform {
     }
 
     private fun play(name: String) {
-        println("Loading game ${name}")
+        println("Loading game $name")
         backend.restart(name)
     }
 
@@ -111,9 +112,7 @@ class App : Application(), Platform {
         }
     }
 
-    override fun yield() {
-        TimeUnit.MICROSECONDS.sleep(1)
-    }
+    override fun yield() = TimeUnit.MICROSECONDS.sleep(1)
 
     override fun time(): Long = System.currentTimeMillis()
 
